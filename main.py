@@ -18,7 +18,7 @@ class password_manager:
                 print("Invalid choice")
 
     def main(self):
-        #menu principal del program
+        #menu principal del programa
         while True:
             self.limpiar_pantalla()
             print("Password Manager")
