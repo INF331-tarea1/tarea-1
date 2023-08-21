@@ -9,7 +9,7 @@ class DbOperations:
     def create_table(self, table_name="passwords"):
         conn = self.connect()
         cur = conn.cursor()
-        query = """
+        query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             CREATE_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
