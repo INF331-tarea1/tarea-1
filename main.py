@@ -71,7 +71,7 @@ class password_manager:
                 print("Error: ", e)
     
     def create_password(self):
-        pass
+        print("Create new password")
 
     def limpiar_pantalla(self):
         #para limpirar la pantalla
