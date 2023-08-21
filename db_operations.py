@@ -8,7 +8,6 @@ class DbOperations:
 
     def create_table(self, table_name="passwords"):
         conn = self.connect()
-        cur = conn.cursor()
         query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
