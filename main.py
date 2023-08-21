@@ -1,10 +1,23 @@
 from db_operations import DbOperations
+import os
 class password_manager:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, db_class):
+        self.db_class = db_class
+        self.db_class.create_table()
+
+    def ir_a_menu(self):
+        ir = input("Desea ir al menu? (y/n): ")
+        match ir:
+            case "y":
+                self.main()
+            case "n":
+                print("Exiting...")
+            case _:
+                print("Invalid choice")
 
     def main(self):
         while True:
+            self.limpiar_pantalla()
             print("Password Manager")
             print("----------------")
             print("1. Create new password")
@@ -57,9 +70,12 @@ class password_manager:
     def create_password(self):
         pass
 
+    def limpiar_pantalla(self):
+        os.system("cls" if os.name == "nt" else "clear")
+        
+
 
 if __name__ == "__main__":
     db_class = DbOperations()
-    db_class.create_table()
-    password_manager = password_manager()
-    password_manager.main()
+    password_manager = password_manager(db_class)
+    password_manager.ir_a_menu()
