@@ -6,6 +6,8 @@ class password_manager:
         self.db_class.create_table()
 
     def ir_a_menu(self):
+        # esto es para que no tengamos que ir al menu a cada que ejecutamos el programa
+        # borrar cuando ya estemos terminando
         ir = input("Desea ir al menu? (y/n): ")
         match ir:
             case "y":
@@ -16,6 +18,7 @@ class password_manager:
                 print("Invalid choice")
 
     def main(self):
+        #menu principal del programa
         while True:
             self.limpiar_pantalla()
             print("Password Manager")
@@ -71,6 +74,7 @@ class password_manager:
         pass
 
     def limpiar_pantalla(self):
+        #para limpirar la pantalla
         os.system("cls" if os.name == "nt" else "clear")
         
 
