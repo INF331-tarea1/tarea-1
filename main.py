@@ -1,3 +1,5 @@
+from create_password import create_password
+from db_operations import DbOperations
 while True:
     print("Password Manager")
     print("----------------")
@@ -44,3 +46,8 @@ while True:
                 print("Error: ", e)
         case _:
             print("Invalid choice")
+
+
+if __name__ == "__main__":
+    db_class = DbOperations()
+    db_class.create_table()
