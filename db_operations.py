@@ -1,11 +1,13 @@
 import sqlite3
 
+
 class DbOperations:
     
     def connect(self):
         conn = sqlite3.connect('database.db')
         return conn
 
+    # Solo crea tabla de contraseñas, porque no sepuede abstraer bien
     def create_table(self, table_name="passwords"):
         conn = self.connect()
         query = f"""
