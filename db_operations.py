@@ -21,8 +21,6 @@ class DbOperations:
         query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            CREATE_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UPDATE_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             website TEXT NOT NULL,
             username VARCHAR(200),
             password VARCHAR(50)
@@ -132,10 +130,10 @@ class DbOperations:
                 return -1
         # conn.close()
     
-    def delete_password(self, website, table_name="passwords"):
+    def delete_password(self, website, username, table_name="passwords"):
         # conn = self.connect()
         query = f"""
-        DELETE FROM {table_name} WHERE website = '{website}';
+        DELETE FROM {table_name} WHERE website = '{website}' and username = '{username}';
         """
         with self.conn as conn:
             cursor = conn.cursor()
@@ -155,7 +153,6 @@ class DbOperations:
         # conn.close()
     
 db_class = DbOperations()
-db_class.create_table()
 db_class.insert_password("facebook", "johndoe", "123456")
 a = db_class.view_password("facebook", "johndoe")
 if a != -1:
