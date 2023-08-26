@@ -22,8 +22,8 @@ class DbOperations:
         CREATE TABLE IF NOT EXISTS {table_name} (
             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             website TEXT NOT NULL,
-            username VARCHAR(200),
-            password VARCHAR(50)
+            username VARCHAR(256),
+            password VARCHAR(64)
             );
             """
         with self.conn as conn:
@@ -57,11 +57,11 @@ class DbOperations:
     def view_password(self, website, username, table_name="passwords"):
         # conn = self.connect()
         query = f"""
-        SELECT * FROM {table_name} WHERE website = '{website}' AND username = '{username}';
+        SELECT * FROM {table_name} WHERE website = ? AND username = ?;
         """
         with self.conn as conn:
             cursor = conn.cursor()
-            cursor.execute(query)
+            cursor.execute(query, (website, username))
             row = cursor.fetchone()
             if row:
                 # print("Website: ", row[3])
@@ -100,11 +100,11 @@ class DbOperations:
                 return -1
 
         query = f"""
-        UPDATE {table_name} SET username = '{username}', password = '{password}' WHERE website = '{website}';
+        UPDATE {table_name} SET password = ? WHERE website = ? AND username = ?;
         """
         with self.conn as conn:
             cursor = conn.cursor()
-            cursor.execute(query)
+            cursor.execute(query, (username, password, website))
             print("Password updated successfully")
         # conn.close()
     
@@ -133,11 +133,11 @@ class DbOperations:
     def delete_password(self, website, username, table_name="passwords"):
         # conn = self.connect()
         query = f"""
-        DELETE FROM {table_name} WHERE website = '{website}' and username = '{username}';
+        DELETE FROM {table_name} WHERE website = ? and username = ?;
         """
         with self.conn as conn:
             cursor = conn.cursor()
-            cursor.execute(query)
+            cursor.execute(query, (website, username))
             print("Password deleted successfully")
         # conn.close()
     
@@ -151,17 +151,3 @@ class DbOperations:
             cursor.execute(query)
             print("All passwords deleted successfully")
         # conn.close()
-    
-db_class = DbOperations()
-db_class.insert_password("facebook", "johndoe", "123456")
-a = db_class.view_password("facebook", "johndoe")
-if a != -1:
-    print(a)
-print("----------------")
-db_class.modify_password("facebook", "johndoes", "123456789")
-b = db_class.view_password("facebook", "johndoes")
-if b != -1:
-    print(b)
-print("----------------")
-# db_class.delete_all()
-# db_class.show_all_passwords()
