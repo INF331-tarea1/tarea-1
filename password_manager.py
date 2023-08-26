@@ -7,21 +7,10 @@ import os
 
 
 class PasswordManager:
-    def __init__(self, db_class, master_password):
+    def __init__(self, db_class, master_password, key):
         self.db = db_class
         self.master_password = master_password.encode()
-        self.key = self.generate_encryption_key()
-
-    # TODO: How can I ensure that the master password is correct?
-    def generate_encryption_key(self):
-        self.kdf = PBKDF2HMAC(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=os.urandom(16),
-            iterations=480000,
-        )
-        key = base64.urlsafe_b64encode(self.kdf.derive(self.master_password))
-        return key
+        self.key = key
 
     def encrypt_password(self, password):
         fernet = Fernet(self.key)
@@ -29,8 +18,7 @@ class PasswordManager:
         return encrypted_password
 
     def decrypt_password(self, encrypted_password):
-        key = self.key
-        fernet = Fernet(key)
+        fernet = Fernet(self.key)
         decrypted_password = fernet.decrypt(encrypted_password).decode()
         return decrypted_password
 
@@ -119,6 +107,7 @@ class PasswordManager:
             choice = int(input())
 
             if choice == 6:
+                self.db.close_db()
                 break
 
             try:
