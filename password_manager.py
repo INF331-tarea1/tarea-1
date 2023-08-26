@@ -4,7 +4,13 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.fernet import Fernet
 import base64
 import os
+import logging as lg
 
+lg.basicConfig(level=lg.DEBUG,
+                    format="%(asctime)s - %(levelname)s - %(message)s",
+                    datefmt="%d-%b-%y %H:%M:%S",
+                    filename="main_logs.log",
+                    filemode="a")
 
 class PasswordManager:
     def __init__(self, db_class, master_password, key):
@@ -53,6 +59,7 @@ class PasswordManager:
     def view_password(self, website, username):
         stored_password = self.db.view_password(website, username)[3]
         print(self.decrypt_password(stored_password))
+        lg.debug(f"Password for {website} and {username} is {self.decrypt_password(stored_password)}")
 
     def delete_password(self, website, username): # add password?
         self.db.delete_password(website, username)
@@ -72,8 +79,10 @@ class PasswordManager:
         if self.decrypt_password(stored_password) == password:
             self.db.modify_password(website, username, encrypted_newpassword)
             print('Password succesfully modified')
+            lg.debug(f"Password for {website} and {username} was updated to {self.decrypt_password(encrypted_newpassword)}")
         else:
             print('Passwords does not match')
+            lg.debug(f"Password for {website} and {username} was not updated")
 
     def action(self, choice):
         if choice == 1:
@@ -114,3 +123,4 @@ class PasswordManager:
                 self.action(choice)
             except Exception as e:
                 print(f"Error in {choice}: {e}")
+                lg.error(f"Error in {choice}: {e}")
