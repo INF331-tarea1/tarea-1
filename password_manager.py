@@ -1,11 +1,45 @@
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import serialization
+from cryptography.fernet import Fernet
+import base64
 import os
 
 
 class PasswordManager:
-    def __init__(self, db_class):
+    def __init__(self, db_class, master_password):
         self.db = db_class
         self.db.create_table()
+        self.master_password = master_password.encode()
+        self.key = self.generate_encryption_key()
 
+    # with the master_password creates the encryption key
+    # If the master_password is not the right one, then the decrypt will not work
+    # TODO: How can I ensure that the master password is correct?
+    def generate_encryption_key(self):
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            salt=os.urandom(16),
+            iterations=100000,
+        )
+        key = base64.urlsafe_b64encode(kdf.derive(self.master_password))
+        return key
+
+    def encrypt_password(self, password):
+        fernet = Fernet(self.key)
+        encrypted_password = fernet.encrypt(password.encode())
+        return encrypted_password
+
+    def decrypt_password(self, encrypted_password):
+        try:
+            key = self.key
+            fernet = Fernet(key)
+            decrypted_password = fernet.decrypt(encrypted_password).decode()
+            return decrypted_password
+        except Exception as e:
+            print("Decryption failed. Incorrect master password or corrupted data.")
+            print(e)
+    
     def clear_screen(self):
         os.system("cls" if os.name == "nt" else "clear")
 
@@ -21,9 +55,6 @@ class PasswordManager:
         print("6. Exit")
         print("----------------")
         print("Enter your choice: ", end="")
-
-    def encrypt(self, password):
-        pass
 
     def check_password(self, password):
         # TODO: Check if password meets basic criteria
