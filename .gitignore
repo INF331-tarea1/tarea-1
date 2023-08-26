@@ -2,3 +2,4 @@ __init__.py
 logs.txt
 database.db
 __pycache__/
+test.py

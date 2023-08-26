@@ -19,8 +19,9 @@ class PasswordManager:
     def generate_encryption_key(self):
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
+            length=32,
             salt=os.urandom(16),
-            iterations=100000,
+            iterations=480000,
         )
         key = base64.urlsafe_b64encode(kdf.derive(self.master_password))
         return key
@@ -56,12 +57,15 @@ class PasswordManager:
         print("----------------")
         print("Enter your choice: ", end="")
 
+    # TODO: Check if password meets basic criteria
     def check_password(self, password):
-        # TODO: Check if password meets basic criteria
+        # length between 6 and 64
+        # if its utf-8?
+        # its a letter or a code?
         pass
 
+    # TODO: encrypt password here, new function
     def create_password(self, website, username, password):
-        # TODO: encrypt password here, new function
         self.db.insert_password(website, username, password)
 
     def view_password(self, website, username):
@@ -73,8 +77,8 @@ class PasswordManager:
     def show_all_passwords(self):
         self.db.show_all_passwords()
 
+    #TODO: encrypt password here, new function
     def update_password(self, website, username, password, newpassword):
-        #TODO: encrypt password here, new function
         self.db.modify_password(website, username, password, newpassword) #TODO: add newpassword in db_operations
 
     def action(self, choice):
@@ -102,12 +106,8 @@ class PasswordManager:
         else:
             print("Invalid choice")
 
-        return True
-
-
     def menu(self):
-        flag = True
-        while flag:
+        while True:
             self.print_menu()
             choice = int(input())
 
@@ -115,6 +115,6 @@ class PasswordManager:
                 break
 
             try:
-                flag = self.action(choice)
+                self.action(choice)
             except:
                 print(f"Error in {choice}")
