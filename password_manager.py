@@ -9,21 +9,18 @@ import os
 class PasswordManager:
     def __init__(self, db_class, master_password):
         self.db = db_class
-        self.db.create_table()
         self.master_password = master_password.encode()
         self.key = self.generate_encryption_key()
 
-    # with the master_password creates the encryption key
-    # If the master_password is not the right one, then the decrypt will not work
     # TODO: How can I ensure that the master password is correct?
     def generate_encryption_key(self):
-        kdf = PBKDF2HMAC(
+        self.kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=os.urandom(16),
             iterations=480000,
         )
-        key = base64.urlsafe_b64encode(kdf.derive(self.master_password))
+        key = base64.urlsafe_b64encode(self.kdf.derive(self.master_password))
         return key
 
     def encrypt_password(self, password):
@@ -32,20 +29,16 @@ class PasswordManager:
         return encrypted_password
 
     def decrypt_password(self, encrypted_password):
-        try:
-            key = self.key
-            fernet = Fernet(key)
-            decrypted_password = fernet.decrypt(encrypted_password).decode()
-            return decrypted_password
-        except Exception as e:
-            print("Decryption failed. Incorrect master password or corrupted data.")
-            print(e)
-    
+        key = self.key
+        fernet = Fernet(key)
+        decrypted_password = fernet.decrypt(encrypted_password).decode()
+        return decrypted_password
+
     def clear_screen(self):
         os.system("cls" if os.name == "nt" else "clear")
 
     def print_menu(self):
-        self.clear_screen()
+        print("\n----------------")
         print("Password Manager")
         print("----------------")
         print("1. Show all passwords")
@@ -64,22 +57,35 @@ class PasswordManager:
         # its a letter or a code?
         pass
 
-    # TODO: encrypt password here, new function
     def create_password(self, website, username, password):
-        self.db.insert_password(website, username, password)
+        encrypted_password = self.encrypt_password(password)
+        self.db.insert_password(website, username, encrypted_password)
 
+    # TODO: copy to the clipboard directly
     def view_password(self, website, username):
-        self.db.view_password(website, username)
+        stored_password = self.db.view_password(website, username)[3]
+        print(self.decrypt_password(stored_password))
 
     def delete_password(self, website, username): # add password?
         self.db.delete_password(website, username)
 
     def show_all_passwords(self):
-        self.db.show_all_passwords()
+        all_passswords = self.db.show_all_passwords()
+        for _, website, username, password in all_passswords:
+            print(website, username, password, sep=" || ")
 
-    #TODO: encrypt password here, new function
     def update_password(self, website, username, password, newpassword):
-        self.db.modify_password(website, username, password, newpassword) #TODO: add newpassword in db_operations
+        encrypted_password = self.encrypt_password(password)
+        encrypted_newpassword = self.encrypt_password(newpassword)
+
+        # Check if password exists and its valid
+        stored_password = self.db.view_password(website, username)[3]
+
+        if self.decrypt_password(stored_password) == password:
+            self.db.modify_password(website, username, encrypted_newpassword)
+            print('Password succesfully modified')
+        else:
+            print('Passwords does not match')
 
     def action(self, choice):
         if choice == 1:
@@ -107,6 +113,7 @@ class PasswordManager:
             print("Invalid choice")
 
     def menu(self):
+        self.clear_screen()
         while True:
             self.print_menu()
             choice = int(input())
@@ -116,5 +123,5 @@ class PasswordManager:
 
             try:
                 self.action(choice)
-            except:
-                print(f"Error in {choice}")
+            except Exception as e:
+                print(f"Error in {choice}: {e}")

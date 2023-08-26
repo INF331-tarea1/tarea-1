@@ -2,20 +2,13 @@ import sqlite3
 
 
 class DbOperations:
-
     def __init__(self, file_name="database.db"):
         self.conn = sqlite3.connect(file_name)
         self.create_table()
-    
-    # def connect(self):
-    #     conn = sqlite3.connect('database.db')
-    #     return conn
 
     def close_db(self):
         self.conn.close()
-    
 
-    # Solo crea tabla de contraseñas, porque no sepuede abstraer bien
     def create_table(self, table_name="passwords"):
         # conn = self.connect()
         query = f"""
@@ -33,7 +26,6 @@ class DbOperations:
         # conn.close()
     
     def insert_password(self, website, username, password, table_name="passwords"):
-        # conn = self.connect()
         query_check_user = f"""
         SELECT * FROM {table_name} WHERE website = ? AND username = ?;
         """
@@ -52,10 +44,8 @@ class DbOperations:
             cursor = conn.cursor()
             cursor.execute(query, (website, username, password))
             print("Password inserted successfully")
-        # conn.close()
     
     def view_password(self, website, username, table_name="passwords"):
-        # conn = self.connect()
         query = f"""
         SELECT * FROM {table_name} WHERE website = ? AND username = ?;
         """
@@ -64,18 +54,12 @@ class DbOperations:
             cursor.execute(query, (website, username))
             row = cursor.fetchone()
             if row:
-                # print("Website: ", row[3])
-                # print("Username: ", row[4])
-                # print("Password: ", row[5])
-                # conn.close()
                 return row
             else:
                 print("No password found for this website")
                 return -1
-        # conn.close()
     
     def modify_password(self, website, username, password, table_name="passwords"):
-        # conn = self.connect()
         query_check_website = f"""
         SELECT * FROM {table_name} WHERE website = ?;
         """
@@ -86,8 +70,7 @@ class DbOperations:
             if not existing_website:
                 print("Website does not exist. Cannot modify password.")
                 return -1
-        
-        # Check if username exists for the given website
+
         query_check_user = f"""
         SELECT * FROM {table_name} WHERE website = ? AND username = ?;
         """
@@ -104,13 +87,10 @@ class DbOperations:
         """
         with self.conn as conn:
             cursor = conn.cursor()
-            cursor.execute(query, (username, password, website))
+            cursor.execute(query, (password, website, username))
             print("Password updated successfully")
-        # conn.close()
-    
     
     def show_all_passwords(self, table_name="passwords"):
-        # conn = self.connect()
         query = f"""
         SELECT * FROM {table_name};
         """
@@ -119,19 +99,12 @@ class DbOperations:
             cursor.execute(query)
             rows = cursor.fetchall()
             if rows:
-                # for row in rows:
-                #     print("Website: ", row[3])
-                #     print("Username: ", row[4])
-                #     print("Password: ", row[5])
-                #     print("----------------")
                 return rows
             else:
                 print("No passwords found")
                 return -1
-        # conn.close()
     
     def delete_password(self, website, username, table_name="passwords"):
-        # conn = self.connect()
         query = f"""
         DELETE FROM {table_name} WHERE website = ? and username = ?;
         """
@@ -139,10 +112,8 @@ class DbOperations:
             cursor = conn.cursor()
             cursor.execute(query, (website, username))
             print("Password deleted successfully")
-        # conn.close()
     
     def delete_all(self, table_name="passwords"):
-        # conn = self.connect()
         query = f"""
         DELETE FROM {table_name};
         """
@@ -150,4 +121,3 @@ class DbOperations:
             cursor = conn.cursor()
             cursor.execute(query)
             print("All passwords deleted successfully")
-        # conn.close()
