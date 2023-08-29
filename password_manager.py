@@ -65,7 +65,7 @@ class PasswordManager:
         self.db.delete_password(website, username)
 
     def show_all_passwords(self):
-        all_passswords = self.db.show_all_passwords()
+        all_passswords = self.db.show_all_passwords()[1:]
         for _, website, username, password in all_passswords:
             print(website, username, password, sep=" || ")
 
