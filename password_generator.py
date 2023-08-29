@@ -1,6 +1,8 @@
 import secrets
 import string
 import logging as lg
+import pyperclip
+
 class Passwordgenerator:
 
     lg.basicConfig(level=lg.DEBUG,
@@ -13,8 +15,9 @@ class Passwordgenerator:
         while True:
             try:
                 self.length = int(input("Enter the length of the password: "))
-            except ValueError:
+            except ValueError as e:
                 print("Please enter a number")
+                lg.debug(f"Error: {e}")
                 continue
             self.symbols = input("Do you want symbols in your password? (y/n) ").lower()
             if self.symbols == "y":
@@ -60,13 +63,43 @@ class Passwordgenerator:
 
         return new_password
     
-    def print_passwords(self, length):
-        length = int(length)
+    def print_passwords(self):
+        while True:
+            try:
+                length = int(input("How many passwords do you want to generate? "))
+                break
+            except ValueError as e:
+                print("Please enter a number")
+                lg.debug(f"Error: {e}")
+                continue
+        self.passwords = []
         for i in range(length):
             password = self.generate_password()
-            print(f"Password {i} is: {password}")
+            self.passwords.append(password)
+            print(f"Password {i+1} is: {password}")
         lg.info(f"Printed {length} passwords")
+
+    def copy_to_clipboard(self):
+        while True:
+            try:
+                index = int(input("Enter the number of the password you want to copy: "))
+            except ValueError as e:
+                print("Please enter a number")
+                lg.debug(f"Error: {e}")
+                continue
+            if index < len(self.passwords):
+                password = self.passwords[index-1]
+                pyperclip.copy(password)
+                print(f"Password {index} copied to clipboard")
+                lg.info(f"Password {index} copied to clipboard")
+                break
+            else:
+                print("Please enter a valid number")
+                continue
+
+
 
 pg = Passwordgenerator()
 pg.ask_for_parameters()
-pg.print_passwords(10)
+pg.print_passwords()
+pg.copy_to_clipboard()
