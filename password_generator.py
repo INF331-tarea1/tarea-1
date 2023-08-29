@@ -96,10 +96,3 @@ class Passwordgenerator:
             else:
                 print("Please enter a valid number")
                 continue
-
-
-
-pg = Passwordgenerator()
-pg.ask_for_parameters()
-pg.print_passwords()
-pg.copy_to_clipboard()
