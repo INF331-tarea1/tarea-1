@@ -128,14 +128,22 @@ class PasswordManager:
             self.update_password(website, username, password, newpassword)
         elif choice == 6:
             self.db.delete_all()
-        else:
-            print("Invalid choice")
+
+    def valid_menu_input(self, menu_input):
+        return menu_input.isdigit() and int(menu_input) <= 7 and int(menu_input) >= 1
+
 
     def menu(self):
         self.clear_screen()
         while True:
             self.print_menu()
-            choice = int(input())
+            choice = input()
+
+            if not self.valid_menu_input(choice):
+                print("Invalid choice, try again.")
+                continue
+
+            choice = int(choice)
 
             if choice == 7:
                 self.db.close_db()
