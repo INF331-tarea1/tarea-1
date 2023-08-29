@@ -51,18 +51,30 @@ class PasswordManager:
         pass
 
     def create_password(self, website, username, password):
-        encrypted_password = self.encrypt_password(password)
-        self.db.insert_password(website, username, encrypted_password)
+        stored_item = self.db.view_password(website, username)
+        
+        if stored_item != -1:
+            encrypted_password = self.encrypt_password(password)
+            self.db.insert_password(website, username, encrypted_password)
+        else:
+            print("Password already saved, if you want to update it use that option.")
 
-    # TODO: copy to the clipboard directly
     def view_password(self, website, username):
-        stored_password = self.db.view_password(website, username)[3]
-        pyperclip.copy(self.decrypt_password(stored_password))
-        print("Password copied to the clipboard")
-        lg.debug(f"Password for {website} and {username} is {self.decrypt_password(stored_password)}")
+        stored_password = self.db.view_password(website, username)
+        if stored_password != -1:
+            pyperclip.copy(self.decrypt_password(stored_password)[3])
+            print("Password copied to the clipboard")
+            lg.debug(f"Password for {website} and {username} is {self.decrypt_password(stored_password)[3]}")
+        else:
+            print("Password not found")
+            lg.debug(f"Password for {website} and {username} not found")
 
     def delete_password(self, website, username): # add password?
-        self.db.delete_password(website, username)
+        if self.db.view_password(website, username) != -1:
+            self.db.delete_password(website, username)
+            print("Password deleted succesfully")
+        else:
+            print("Password not found")
 
     def show_all_passwords(self):
         all_passswords = self.db.show_all_passwords()
@@ -75,19 +87,22 @@ class PasswordManager:
 
 
     def update_password(self, website, username, password, newpassword):
-        encrypted_password = self.encrypt_password(password)
         encrypted_newpassword = self.encrypt_password(newpassword)
 
         # Check if password exists and its valid
-        stored_password = self.db.view_password(website, username)[3]
+        stored_password = self.db.view_password(website, username)
 
-        if self.decrypt_password(stored_password) == password:
-            self.db.modify_password(website, username, encrypted_newpassword)
-            print('Password succesfully modified')
-            lg.debug(f"Password for {website} and {username} was updated to {self.decrypt_password(encrypted_newpassword)}")
+        if stored_password != -1:
+            if self.decrypt_password(stored_password[3]) == password:
+                self.db.modify_password(website, username, encrypted_newpassword)
+                print('Password succesfully modified')
+                lg.debug(f"Password for {website} and {username} was updated to {self.decrypt_password(encrypted_newpassword[3])}")
+            else:
+                print('Passwords does not match')
+                lg.debug(f"Password for {website} and {username} was not updated")
         else:
-            print('Passwords does not match')
-            lg.debug(f"Password for {website} and {username} was not updated")
+            print('Account not found')
+            lg.debug(f"Password for {website} and {username} was not found")
 
     def action(self, choice):
         if choice == 1:
