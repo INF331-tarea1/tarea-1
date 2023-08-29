@@ -2,6 +2,7 @@ from cryptography.fernet import Fernet
 import os
 import logging as lg
 import pyperclip
+import getpass
 
 lg.basicConfig(level=lg.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -96,13 +97,13 @@ class PasswordManager:
         elif choice == 4:
             website = input("Enter website: ")
             username = input("Enter username: ")
-            password = input("Enter password: ")
+            password = getpass.getpass("Enter password: ")
             self.create_password(website, username, password)
         elif choice == 5:
             website = input("Enter website: ")
             username = input("Enter username: ")
-            password = input("Enter current password: ")
-            newpassword = input("Enter new password: ")
+            password = getpass.getpass("Enter current password: ")
+            newpassword = getpass.getpass("Enter new password: ")
             self.update_password(website, username, password, newpassword)
         else:
             print("Invalid choice")

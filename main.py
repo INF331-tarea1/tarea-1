@@ -2,12 +2,10 @@ from db_operations import DbOperations
 from password_manager import PasswordManager
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import serialization
-from cryptography.fernet import Fernet
 import base64
 import os
 import logging as lg
-
+import getpass
 
 lg.basicConfig(level=lg.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -29,7 +27,7 @@ if __name__ == "__main__":
     incorrect_master_password = True
 
     while incorrect_master_password:
-        MASTER_PASS = input("Enter the master password: ")
+        MASTER_PASS = getpass.getpass("Enter the master password: ")
 
         if not os.path.exists("database.db"):
             lg.info("Database does not exist")
