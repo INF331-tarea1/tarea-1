@@ -137,7 +137,7 @@ class DbOperations:
     
     def delete_all(self, table_name="passwords"):
         query = f"""
-        DELETE FROM {table_name};
+        DELETE FROM {table_name} WHERE website != 'dummy_pass' and username != 'dummy_pas';
         """
         with self.conn as conn:
             cursor = conn.cursor()
