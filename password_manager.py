@@ -38,7 +38,8 @@ class PasswordManager:
         print("3. Delete password")
         print("4. Create new password")
         print("5. Update password")
-        print("6. Exit")
+        print("6. Delete all passwords")
+        print("7. Exit")
         print("----------------")
         print("Enter your choice: ", end="")
 
@@ -64,9 +65,14 @@ class PasswordManager:
         self.db.delete_password(website, username)
 
     def show_all_passwords(self):
-        all_passswords = self.db.show_all_passwords()[1:]
-        for _, website, username, password in all_passswords:
-            print(website, username, password, sep=" || ")
+        all_passswords = self.db.show_all_passwords()
+
+        try:
+            for _, website, username, password in all_passswords[1:]:
+                print(website, username, password, sep=" || ")
+        except:
+            print("No password saved")
+
 
     def update_password(self, website, username, password, newpassword):
         encrypted_password = self.encrypt_password(password)
@@ -105,6 +111,8 @@ class PasswordManager:
             password = getpass.getpass("Enter current password: ")
             newpassword = getpass.getpass("Enter new password: ")
             self.update_password(website, username, password, newpassword)
+        elif choice == 6:
+            self.db.delete_all()
         else:
             print("Invalid choice")
 
@@ -114,7 +122,7 @@ class PasswordManager:
             self.print_menu()
             choice = int(input())
 
-            if choice == 6:
+            if choice == 7:
                 self.db.close_db()
                 break
 
