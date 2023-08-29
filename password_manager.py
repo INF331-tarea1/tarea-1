@@ -1,10 +1,7 @@
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import serialization
 from cryptography.fernet import Fernet
-import base64
 import os
 import logging as lg
+import pyperclip
 
 lg.basicConfig(level=lg.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -58,7 +55,8 @@ class PasswordManager:
     # TODO: copy to the clipboard directly
     def view_password(self, website, username):
         stored_password = self.db.view_password(website, username)[3]
-        print(self.decrypt_password(stored_password))
+        pyperclip.copy(self.decrypt_password(stored_password))
+        print("Password copied to the clipboard")
         lg.debug(f"Password for {website} and {username} is {self.decrypt_password(stored_password)}")
 
     def delete_password(self, website, username): # add password?
