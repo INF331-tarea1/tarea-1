@@ -122,5 +122,4 @@ class PasswordManager:
             try:
                 self.action(choice)
             except Exception as e:
-                print(f"Error in {choice}: {e}")
                 lg.error(f"Error in {choice}: {e}")
