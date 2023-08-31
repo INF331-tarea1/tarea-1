@@ -3,6 +3,7 @@ import logging as lg
 import pyperclip
 import functions
 from prettytable import PrettyTable
+from password_generator import PasswordGenerator
 
 lg.basicConfig(level=lg.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -15,6 +16,7 @@ class PasswordManager:
         self.db = db_class
         self.master_password = master_password.encode()
         self.key = key
+        self.generator = PasswordGenerator()
 
     def clear_screen(self):
         os.system("cls" if os.name == "nt" else "clear")
@@ -29,7 +31,8 @@ class PasswordManager:
         print("4. Create new password")
         print("5. Update password")
         print("6. Delete all passwords")
-        print("7. Exit")
+        print("7. Generate passwords")
+        print("8. Exit")
         print("----------------")
         print("Enter your choice: ", end="")
 
@@ -114,9 +117,22 @@ class PasswordManager:
             self.update_password(website, username, password, newpassword)
         elif choice == 6:
             self.db.delete_all()
+        elif choice == 7:
+            self.generator.ask_for_parameters()
+            self.generator.print_passwords()
+            while True:
+                a = input("Do you want to copy a password? (y/n) ")
+                if a == "y":
+                    self.generator.copy_to_clipboard()
+                    break
+                elif a == "n":
+                    break
+                else:
+                    print("Invalid input")
+                    continue
 
     def valid_menu_input(self, menu_input):
-        return menu_input.isdigit() and int(menu_input) <= 7 and int(menu_input) >= 1
+        return menu_input.isdigit() and int(menu_input) <= 8 and int(menu_input) >= 1
 
     def menu(self):
         self.clear_screen()
@@ -130,7 +146,7 @@ class PasswordManager:
 
             choice = int(choice)
 
-            if choice == 7:
+            if choice == 8:
                 self.db.close_db()
                 break
 

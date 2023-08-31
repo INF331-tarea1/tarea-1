@@ -3,7 +3,7 @@ import string
 import logging as lg
 import pyperclip
 
-class Passwordgenerator:
+class PasswordGenerator:
 
     lg.basicConfig(level=lg.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -17,6 +17,9 @@ class Passwordgenerator:
                 self.length = int(input("Enter the length of the password: "))
                 if self.length < 6:
                     print("Please enter a number greater than 6")
+                    continue
+                elif self.length > 64:
+                    print("Please enter a number less than 64")
                     continue
             except ValueError as e:
                 print("Please enter a number")
@@ -110,8 +113,3 @@ class Passwordgenerator:
                 print("Please enter a valid number")
                 lg.debug(f"Entered number out of range")
                 continue
-
-p = Passwordgenerator()
-p.ask_for_parameters()
-p.print_passwords()
-p.copy_to_clipboard()

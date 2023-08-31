@@ -35,22 +35,27 @@ if __name__ == "__main__":
             key = functions.generate_encryption_key(master_pass)
 
             master_pass_encrypt = db_class.view_password("dummy_pass", "dummy_pas")[3]
-            master_pass_decrypt = functions.decrypt_password(key, master_pass_encrypt)
+            try:
+                master_pass_decrypt = functions.decrypt_password(key, master_pass_encrypt)
             
-            if master_pass == master_pass_decrypt:
-                lg.info("Master password correct")
-                incorrect_master_password = False
-            else:
+                if master_pass == master_pass_decrypt:
+                    lg.info("Master password correct")
+                    incorrect_master_password = False
+                else:
+                    print("Master password incorrect")
+                    lg.debug("Master password incorrect")
+                    while incorrect_master_password:
+                        master_pass = functions.read_password(type="master")
+                        if master_pass == master_pass_decrypt:
+                            lg.info("Master password correct")
+                            incorrect_master_password = False
+                        else:
+                            print("Master password incorrect")
+                            lg.debug("Master password incorrect")
+            except Exception:
                 print("Master password incorrect")
-                lg.debug("Master password incorrect")
-                while incorrect_master_password:
-                    master_pass = functions.read_password(type="master")
-                    if master_pass == master_pass_decrypt:
-                        lg.info("Master password correct")
-                        incorrect_master_password = False
-                    else:
-                        print("Master password incorrect")
-                        lg.debug("Master password incorrect")
+                lg.debug(f"Error: Invalid Token")
+
 
     password_manager = PasswordManager(db_class, master_pass, key)
     password_manager.menu()
