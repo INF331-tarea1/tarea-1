@@ -2,6 +2,7 @@ import os
 import logging as lg
 import pyperclip
 import functions
+from prettytable import PrettyTable
 
 lg.basicConfig(level=lg.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -35,7 +36,7 @@ class PasswordManager:
     def create_password(self, website, username, password):
         stored_item = self.db.view_password(website, username)
         
-        if stored_item != -1:
+        if stored_item == -1:
             encrypted_password = functions.encrypt_password(self.key, password)
             self.db.insert_password(website, username, encrypted_password)
         else:
@@ -61,11 +62,16 @@ class PasswordManager:
     def show_all_passwords(self):
         all_passswords = self.db.show_all_passwords()[1:]
 
-        for _, website, username, password in all_passswords:
-            print(website, username, password, sep=" || ")
-
         if len(all_passswords) == 0:
             print("No password saved")
+            return
+
+        t = PrettyTable(['Website', 'Username'])
+        for _, website, username, _ in all_passswords:
+            t.add_row([website, username])
+
+        print(t)
+
 
     def update_password(self, website, username, password, newpassword):
         encrypted_newpassword = functions.encrypt_password(self.key, newpassword)
