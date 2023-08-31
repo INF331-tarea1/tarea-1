@@ -1,8 +1,7 @@
-from cryptography.fernet import Fernet
 import os
 import logging as lg
 import pyperclip
-import getpass
+import functions
 
 lg.basicConfig(level=lg.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -15,16 +14,6 @@ class PasswordManager:
         self.db = db_class
         self.master_password = master_password.encode()
         self.key = key
-
-    def encrypt_password(self, password):
-        fernet = Fernet(self.key)
-        encrypted_password = fernet.encrypt(password.encode())
-        return encrypted_password
-
-    def decrypt_password(self, encrypted_password):
-        fernet = Fernet(self.key)
-        decrypted_password = fernet.decrypt(encrypted_password).decode()
-        return decrypted_password
 
     def clear_screen(self):
         os.system("cls" if os.name == "nt" else "clear")
@@ -43,18 +32,11 @@ class PasswordManager:
         print("----------------")
         print("Enter your choice: ", end="")
 
-    # TODO: Check if password meets basic criteria
-    def check_password(self, password):
-        # length between 6 and 64
-        # if its utf-8?
-        # its a letter or a code?
-        pass
-
     def create_password(self, website, username, password):
         stored_item = self.db.view_password(website, username)
         
         if stored_item != -1:
-            encrypted_password = self.encrypt_password(password)
+            encrypted_password = functions.encrypt_password(self.key, password)
             self.db.insert_password(website, username, encrypted_password)
         else:
             print("Password already saved, if you want to update it use that option.")
@@ -62,14 +44,14 @@ class PasswordManager:
     def view_password(self, website, username):
         stored_password = self.db.view_password(website, username)
         if stored_password != -1:
-            pyperclip.copy(self.decrypt_password(stored_password)[3])
+            pyperclip.copy(functions.decrypt_password(self.key, stored_password)[3])
             print("Password copied to the clipboard")
-            lg.debug(f"Password for {website} and {username} is {self.decrypt_password(stored_password)[3]}")
+            lg.debug(f"Password for {website} and {username} is {functions.decrypt_password(self.key, stored_password)[3]}")
         else:
             print("Password not found")
             lg.debug(f"Password for {website} and {username} not found")
 
-    def delete_password(self, website, username): # add password?
+    def delete_password(self, website, username):
         if self.db.view_password(website, username) != -1:
             self.db.delete_password(website, username)
             print("Password deleted succesfully")
@@ -77,26 +59,25 @@ class PasswordManager:
             print("Password not found")
 
     def show_all_passwords(self):
-        all_passswords = self.db.show_all_passwords()
+        all_passswords = self.db.show_all_passwords()[1:]
 
-        try:
-            for _, website, username, password in all_passswords[1:]:
-                print(website, username, password, sep=" || ")
-        except:
+        for _, website, username, password in all_passswords:
+            print(website, username, password, sep=" || ")
+
+        if len(all_passswords) == 0:
             print("No password saved")
 
-
     def update_password(self, website, username, password, newpassword):
-        encrypted_newpassword = self.encrypt_password(newpassword)
+        encrypted_newpassword = functions.encrypt_password(self.key, newpassword)
 
         # Check if password exists and its valid
         stored_password = self.db.view_password(website, username)
 
         if stored_password != -1:
-            if self.decrypt_password(stored_password[3]) == password:
+            if functions.decrypt_password(self.key, stored_password[3]) == password:
                 self.db.modify_password(website, username, encrypted_newpassword)
                 print('Password succesfully modified')
-                lg.debug(f"Password for {website} and {username} was updated to {self.decrypt_password(encrypted_newpassword[3])}")
+                lg.debug(f"Password for {website} and {username} was updated to {functions.decrypt_password(self.key, encrypted_newpassword[3])}")
             else:
                 print('Passwords does not match')
                 lg.debug(f"Password for {website} and {username} was not updated")
@@ -118,20 +99,19 @@ class PasswordManager:
         elif choice == 4:
             website = input("Enter website: ")
             username = input("Enter username: ")
-            password = getpass.getpass("Enter password: ")
+            password = functions.read_password()
             self.create_password(website, username, password)
         elif choice == 5:
             website = input("Enter website: ")
             username = input("Enter username: ")
-            password = getpass.getpass("Enter current password: ")
-            newpassword = getpass.getpass("Enter new password: ")
+            password = functions.read_password(type="current")
+            newpassword = functions.read_password(type="new")
             self.update_password(website, username, password, newpassword)
         elif choice == 6:
             self.db.delete_all()
 
     def valid_menu_input(self, menu_input):
         return menu_input.isdigit() and int(menu_input) <= 7 and int(menu_input) >= 1
-
 
     def menu(self):
         self.clear_screen()
@@ -152,5 +132,4 @@ class PasswordManager:
             try:
                 self.action(choice)
             except Exception as e:
-                print(f"Error in {choice}: {e}")
                 lg.error(f"Error in {choice}: {e}")
