@@ -72,7 +72,6 @@ class PasswordManager:
 
         print(t)
 
-
     def update_password(self, website, username, password, newpassword):
         encrypted_newpassword = functions.encrypt_password(self.key, newpassword)
 
