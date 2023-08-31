@@ -15,6 +15,9 @@ class Passwordgenerator:
         while True:
             try:
                 self.length = int(input("Enter the length of the password: "))
+                if self.length < 6:
+                    print("Please enter a number greater than 6")
+                    continue
             except ValueError as e:
                 print("Please enter a number")
                 lg.debug(f"Error: {e}")
@@ -26,6 +29,7 @@ class Passwordgenerator:
                 self.symbols = False
             else:
                 print("Please enter y or n")
+                lg.debug(f"Error: entered {self.symbols}")
                 continue
             self.numbers = input("Do you want numbers in your password? (y/n) ").lower()
             if self.numbers == "y":
@@ -34,6 +38,7 @@ class Passwordgenerator:
                 self.numbers = False
             else:
                 print("Please enter y or n")
+                lg.debug(f"Error: entered {self.numbers}")
                 continue
             self.uppercase = input("Do you want uppercase letters in your password? (y/n) ").lower()
             if self.uppercase == "y":
@@ -42,12 +47,16 @@ class Passwordgenerator:
                 self.uppercase = False
             else:
                 print("Please enter y or n")
+                lg.debug(f"Error: entered {self.uppercase}")
                 continue
             break
         lg.info(f"Password parameters: length={self.length}, symbols={self.symbols}, numbers={self.numbers}, uppercase={self.uppercase}")
     
     def generate_password(self):
-        combination = string.ascii_lowercase + string.digits
+        combination = string.ascii_lowercase
+
+        if self.numbers:
+            combination += string.digits
 
         if self.symbols:
             combination += string.punctuation
@@ -67,6 +76,10 @@ class Passwordgenerator:
         while True:
             try:
                 length = int(input("How many passwords do you want to generate? "))
+                if length < 1:
+                    print("Please enter a number greater than 0")
+                    lg.debug("Entered number less than 1")
+                    continue
                 break
             except ValueError as e:
                 print("Please enter a number")
@@ -87,7 +100,7 @@ class Passwordgenerator:
                 print("Please enter a number")
                 lg.debug(f"Error: {e}")
                 continue
-            if index < len(self.passwords):
+            if 0 < index <= len(self.passwords):
                 password = self.passwords[index-1]
                 pyperclip.copy(password)
                 print(f"Password {index} copied to clipboard")
@@ -95,4 +108,10 @@ class Passwordgenerator:
                 break
             else:
                 print("Please enter a valid number")
+                lg.debug(f"Entered number out of range")
                 continue
+
+p = Passwordgenerator()
+p.ask_for_parameters()
+p.print_passwords()
+p.copy_to_clipboard()
