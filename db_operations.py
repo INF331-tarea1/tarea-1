@@ -72,7 +72,6 @@ class DbOperations:
             if row:
                 return row
             else:
-                print("No password found for this website")
                 lg.debug(f"No password found for the website {website}")
                 return -1
     
@@ -107,7 +106,6 @@ class DbOperations:
         with self.conn as conn:
             cursor = conn.cursor()
             cursor.execute(query, (password, website, username))
-            print("Password updated successfully")
             lg.info(f"Password updated successfully for the website {website} and the username {username}")
     
     def show_all_passwords(self, table_name="passwords"):
@@ -121,18 +119,38 @@ class DbOperations:
             if rows:
                 return rows
             else:
-                print("No passwords found")
                 lg.debug("No passwords found")
                 return -1
     
     def delete_password(self, website, username, table_name="passwords"):
+        query_check_website = f"""
+        SELECT * FROM {table_name} WHERE website = ?;
+        """
+        with self.conn as conn:
+            cursor = conn.cursor()
+            cursor.execute(query_check_website, (website,))
+            existing_website = cursor.fetchone()
+            if not existing_website:
+                lg.debug(f"Website {website} does not exist. Cannot delete password.")
+                return -1
+
+        query_check_user = f"""
+        SELECT * FROM {table_name} WHERE website = ? AND username = ?;
+        """
+        with self.conn as conn:
+            cursor = conn.cursor()
+            cursor.execute(query_check_user, (website, username))
+            existing_user = cursor.fetchone()
+            if not existing_user:
+                lg.debug(f"Username {username} does not exist for this website {website}. Cannot delete password.")
+                return -1
+
         query = f"""
         DELETE FROM {table_name} WHERE website = ? and username = ?;
         """
         with self.conn as conn:
             cursor = conn.cursor()
             cursor.execute(query, (website, username))
-            print("Password deleted successfully")
             lg.info(f"Password deleted successfully for the website {website} and the username {username}")
     
     def delete_all(self, table_name="passwords"):
