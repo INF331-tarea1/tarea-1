@@ -5,3 +5,6 @@ __pycache__/
 test.py
 *.pyc
 *.log
+build/
+dist/
+*.spec
