@@ -48,7 +48,7 @@ class PasswordManager:
     def view_password(self, website, username):
         stored_password = self.db.view_password(website, username)
         if stored_password != -1:
-            pyperclip.copy(functions.decrypt_password(self.key, stored_password)[3])
+            pyperclip.copy(functions.decrypt_password(self.key, stored_password[3]))
             print("Password copied to the clipboard")
             lg.debug(f"Password for {website} and {username} is {functions.decrypt_password(self.key, stored_password)[3]}")
         else:
