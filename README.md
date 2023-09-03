@@ -11,6 +11,8 @@ This password manager is a software application designed to help users securely 
 
 ## Installation
 
+This software supports Windows and Linux
+
 There are two options:
 
 - Download the latest release for console execution; no additional packages need to be downloaded.
