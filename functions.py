@@ -1,32 +1,9 @@
-import getpass
 import string
 import base64
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import termios
-import sys
-import tty
 
-def get_hidden_input(prompt):
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        password = ''
-        while True:
-            char = sys.stdin.read(1)
-            if char == '\r' or char == '\n':  # Enter key
-                break
-            elif char == '\x03':  # Ctrl+C
-                raise KeyboardInterrupt
-            else:
-                password += char
-                sys.stdout.write('*')
-                sys.stdout.flush()
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return password
 
 def check_password(password):
     valid_characters = string.ascii_letters + string.digits + string.punctuation.replace("\\", "")
@@ -36,7 +13,7 @@ def check_password(password):
 
 def read_password(type=""):
     while True:
-        password = getpass.getpass(f"Enter {type} password: ")
+        password = input(f"Enter {type} password: ")
         if check_password(password):
             return password
         print("Password doesn't meet the minimum criteria. Please try again.")
