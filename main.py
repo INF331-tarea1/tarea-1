@@ -15,9 +15,10 @@ if __name__ == "__main__":
     incorrect_master_password = True
 
     while incorrect_master_password:
-        master_pass = functions.read_password(type="master")
 
         if not os.path.exists("database.db"):
+            print("You will be asked for a master password, this password will be unique.\nIf you forget this password you will not be able to access your passwords.\nPlease choose a strong password and do not forget it.")
+            master_pass = functions.read_password(type="master")
             lg.info("Database does not exist")
 
             key = functions.generate_encryption_key(master_pass)
@@ -30,6 +31,7 @@ if __name__ == "__main__":
             lg.debug(f"master_pass_encrypt: {master_pass_encrypt}")
             incorrect_master_password = False
         else:
+            master_pass = functions.read_password(type="master")
             lg.info("Database exists")
             db_class = DbOperations()
             key = functions.generate_encryption_key(master_pass)
